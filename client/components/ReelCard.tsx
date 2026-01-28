@@ -69,9 +69,17 @@ export function ReelCard({ reel, isActive = false }: ReelCardProps) {
       <View style={styles.overlay}>
         <View style={styles.userInfo}>
           <Image source={reel.userAvatar} style={styles.avatar} contentFit="cover" />
-          <ThemedText type="h4" style={styles.whiteText}>
-            {reel.username}
-          </ThemedText>
+          <View>
+            <ThemedText type="h4" style={styles.whiteText}>
+              {reel.username}
+            </ThemedText>
+            {!reel.isVideo ? (
+              <View style={styles.photoBadge}>
+                <Feather name="image" size={12} color="#FFFFFF" />
+                <ThemedText type="small" style={styles.badgeText}>Photo</ThemedText>
+              </View>
+            ) : null}
+          </View>
         </View>
         <ThemedText type="body" style={[styles.whiteText, styles.caption]} numberOfLines={2}>
           {reel.caption}
@@ -109,7 +117,7 @@ export function ReelCard({ reel, isActive = false }: ReelCardProps) {
         </Pressable>
       </View>
 
-      {isActive ? (
+      {reel.isVideo && isActive ? (
         <View style={styles.playButton}>
           <Feather name="play" size={48} color="rgba(255,255,255,0.8)" />
         </View>
@@ -162,6 +170,20 @@ const styles = StyleSheet.create({
   },
   caption: {
     marginTop: Spacing.xs,
+  },
+  photoBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.2)",
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 2,
+    borderRadius: 10,
+    marginTop: 4,
+  },
+  badgeText: {
+    color: "#FFFFFF",
+    marginLeft: 4,
+    fontSize: 11,
   },
   actions: {
     position: "absolute",

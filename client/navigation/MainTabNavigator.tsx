@@ -5,7 +5,7 @@ import { BlurView } from "expo-blur";
 import { Platform, StyleSheet } from "react-native";
 
 import ChatsStackNavigator from "@/navigation/ChatsStackNavigator";
-import PostsStackNavigator from "@/navigation/PostsStackNavigator";
+import ServicesStackNavigator from "@/navigation/ServicesStackNavigator";
 import ReelsStackNavigator from "@/navigation/ReelsStackNavigator";
 import ProfileStackNavigator from "@/navigation/ProfileStackNavigator";
 import { useTheme } from "@/hooks/useTheme";
@@ -13,7 +13,7 @@ import { Colors } from "@/constants/theme";
 
 export type MainTabParamList = {
   ChatsTab: undefined;
-  PostsTab: undefined;
+  ServicesTab: undefined;
   ReelsTab: undefined;
   ProfileTab: undefined;
 };
@@ -60,10 +60,10 @@ export default function MainTabNavigator() {
         }}
       />
       <Tab.Screen
-        name="PostsTab"
-        component={PostsStackNavigator}
+        name="ServicesTab"
+        component={ServicesStackNavigator}
         options={{
-          title: "Posts",
+          title: "Services",
           tabBarIcon: ({ color, size }) => (
             <Feather name="grid" size={size} color={color} />
           ),
@@ -73,7 +73,7 @@ export default function MainTabNavigator() {
         name="ReelsTab"
         component={ReelsStackNavigator}
         options={{
-          title: "Reels",
+          title: "Feed",
           tabBarIcon: ({ color, size }) => (
             <Feather name="play-circle" size={size} color={color} />
           ),

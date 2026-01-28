@@ -38,6 +38,24 @@ export interface Reel {
   comments: number;
   shares: number;
   isLiked: boolean;
+  isVideo: boolean;
+}
+
+export interface NewsItem {
+  id: string;
+  title: string;
+  summary: string;
+  image: any;
+  timestamp: string;
+  category: string;
+}
+
+export interface Service {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  description: string;
 }
 
 const defaultAvatar = require("../../assets/images/avatar-default.png");
@@ -116,50 +134,89 @@ export const mockMessages: Record<string, Message[]> = {
   ],
 };
 
-export const mockPosts: Post[] = [
+export const mockNews: NewsItem[] = [
   {
     id: "1",
-    username: "nature_lover",
-    userAvatar: defaultAvatar,
+    title: "New Feature Launch: Wallet Integration",
+    summary: "Send and receive payments directly through the app with our new digital wallet.",
     image: require("../../assets/images/sample-post-1.png"),
-    caption: "Golden hour at the mountains. Nothing beats this view!",
-    likes: 342,
-    comments: 28,
-    isLiked: false,
     timestamp: "2h ago",
+    category: "Product Update",
   },
   {
     id: "2",
-    username: "urban_explorer",
-    userAvatar: defaultAvatar,
+    title: "Community Event This Weekend",
+    summary: "Join us for an exciting meetup with exclusive rewards for attendees.",
     image: require("../../assets/images/sample-post-2.png"),
-    caption: "City vibes. The architecture here is incredible.",
-    likes: 189,
-    comments: 15,
-    isLiked: true,
-    timestamp: "4h ago",
+    timestamp: "5h ago",
+    category: "Events",
   },
   {
     id: "3",
-    username: "foodie_adventures",
-    userAvatar: defaultAvatar,
+    title: "Tips for Better Dining Experiences",
+    summary: "Discover the best restaurants and exclusive deals available through our platform.",
     image: require("../../assets/images/sample-post-3.png"),
-    caption: "Morning fuel. Starting the day right with this delicious bowl!",
-    likes: 521,
-    comments: 43,
-    isLiked: false,
-    timestamp: "6h ago",
+    timestamp: "1d ago",
+    category: "Lifestyle",
+  },
+];
+
+export const mockServices: Service[] = [
+  {
+    id: "1",
+    name: "Wallet",
+    icon: "credit-card",
+    color: "#6B8AFF",
+    description: "Manage your payments",
+  },
+  {
+    id: "2",
+    name: "Tickets",
+    icon: "tag",
+    color: "#FF6B9D",
+    description: "Events & bookings",
+  },
+  {
+    id: "3",
+    name: "Map",
+    icon: "map-pin",
+    color: "#10B981",
+    description: "Find nearby places",
   },
   {
     id: "4",
-    username: "macro_world",
-    userAvatar: defaultAvatar,
-    image: require("../../assets/images/sample-post-4.png"),
-    caption: "The little things in life. Morning dew on a fresh leaf.",
-    likes: 267,
-    comments: 19,
-    isLiked: false,
-    timestamp: "8h ago",
+    name: "Dining",
+    icon: "coffee",
+    color: "#F59E0B",
+    description: "Food & restaurants",
+  },
+  {
+    id: "5",
+    name: "Sharing",
+    icon: "share-2",
+    color: "#8B5CF6",
+    description: "Share with friends",
+  },
+  {
+    id: "6",
+    name: "Rewards",
+    icon: "gift",
+    color: "#EC4899",
+    description: "Earn & redeem points",
+  },
+  {
+    id: "7",
+    name: "Transport",
+    icon: "truck",
+    color: "#14B8A6",
+    description: "Rides & delivery",
+  },
+  {
+    id: "8",
+    name: "More",
+    icon: "grid",
+    color: "#6B7280",
+    description: "Explore all services",
   },
 ];
 
@@ -174,9 +231,22 @@ export const mockReels: Reel[] = [
     comments: 89,
     shares: 45,
     isLiked: false,
+    isVideo: true,
   },
   {
     id: "2",
+    username: "nature_lover",
+    userAvatar: defaultAvatar,
+    thumbnail: require("../../assets/images/sample-post-1.png"),
+    caption: "Golden hour at the mountains. Nothing beats this view!",
+    likes: 342,
+    comments: 28,
+    shares: 12,
+    isLiked: false,
+    isVideo: false,
+  },
+  {
+    id: "3",
     username: "art_in_motion",
     userAvatar: defaultAvatar,
     thumbnail: require("../../assets/images/sample-reel-2.png"),
@@ -185,9 +255,22 @@ export const mockReels: Reel[] = [
     comments: 156,
     shares: 78,
     isLiked: true,
+    isVideo: true,
   },
   {
-    id: "3",
+    id: "4",
+    username: "urban_explorer",
+    userAvatar: defaultAvatar,
+    thumbnail: require("../../assets/images/sample-post-2.png"),
+    caption: "City vibes. The architecture here is incredible.",
+    likes: 189,
+    comments: 15,
+    shares: 8,
+    isLiked: true,
+    isVideo: false,
+  },
+  {
+    id: "5",
     username: "life_moments",
     userAvatar: defaultAvatar,
     thumbnail: require("../../assets/images/sample-reel-3.png"),
@@ -196,6 +279,19 @@ export const mockReels: Reel[] = [
     comments: 67,
     shares: 23,
     isLiked: false,
+    isVideo: true,
+  },
+  {
+    id: "6",
+    username: "foodie_adventures",
+    userAvatar: defaultAvatar,
+    thumbnail: require("../../assets/images/sample-post-3.png"),
+    caption: "Morning fuel. Starting the day right with this delicious bowl!",
+    likes: 521,
+    comments: 43,
+    shares: 19,
+    isLiked: false,
+    isVideo: false,
   },
 ];
 
