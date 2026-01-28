@@ -3,12 +3,18 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Feather } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { Platform, StyleSheet } from "react-native";
-import HomeStackNavigator from "@/navigation/HomeStackNavigator";
+
+import ChatsStackNavigator from "@/navigation/ChatsStackNavigator";
+import PostsStackNavigator from "@/navigation/PostsStackNavigator";
+import ReelsStackNavigator from "@/navigation/ReelsStackNavigator";
 import ProfileStackNavigator from "@/navigation/ProfileStackNavigator";
 import { useTheme } from "@/hooks/useTheme";
+import { Colors } from "@/constants/theme";
 
 export type MainTabParamList = {
-  HomeTab: undefined;
+  ChatsTab: undefined;
+  PostsTab: undefined;
+  ReelsTab: undefined;
   ProfileTab: undefined;
 };
 
@@ -19,9 +25,9 @@ export default function MainTabNavigator() {
 
   return (
     <Tab.Navigator
-      initialRouteName="HomeTab"
+      initialRouteName="ChatsTab"
       screenOptions={{
-        tabBarActiveTintColor: theme.tabIconSelected,
+        tabBarActiveTintColor: Colors.light.primary,
         tabBarInactiveTintColor: theme.tabIconDefault,
         tabBarStyle: {
           position: "absolute",
@@ -44,12 +50,32 @@ export default function MainTabNavigator() {
       }}
     >
       <Tab.Screen
-        name="HomeTab"
-        component={HomeStackNavigator}
+        name="ChatsTab"
+        component={ChatsStackNavigator}
         options={{
-          title: "Home",
+          title: "Chats",
           tabBarIcon: ({ color, size }) => (
-            <Feather name="home" size={size} color={color} />
+            <Feather name="message-circle" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="PostsTab"
+        component={PostsStackNavigator}
+        options={{
+          title: "Posts",
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="grid" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="ReelsTab"
+        component={ReelsStackNavigator}
+        options={{
+          title: "Reels",
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="play-circle" size={size} color={color} />
           ),
         }}
       />

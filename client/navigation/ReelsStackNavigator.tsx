@@ -1,25 +1,25 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import ProfileScreen from "@/screens/ProfileScreen";
+import ReelsScreen from "@/screens/ReelsScreen";
 import { useScreenOptions } from "@/hooks/useScreenOptions";
 
-export type ProfileStackParamList = {
-  ProfileMain: undefined;
+export type ReelsStackParamList = {
+  ReelsList: undefined;
 };
 
-const Stack = createNativeStackNavigator<ProfileStackParamList>();
+const Stack = createNativeStackNavigator<ReelsStackParamList>();
 
-export default function ProfileStackNavigator() {
+export default function ReelsStackNavigator() {
   const screenOptions = useScreenOptions();
 
   return (
     <Stack.Navigator screenOptions={screenOptions}>
       <Stack.Screen
-        name="ProfileMain"
-        component={ProfileScreen}
+        name="ReelsList"
+        component={ReelsScreen}
         options={{
-          headerTitle: "Profile",
+          headerShown: false,
         }}
       />
     </Stack.Navigator>
