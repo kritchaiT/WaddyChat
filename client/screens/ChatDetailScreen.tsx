@@ -6,12 +6,18 @@ import {
   TextInput,
   Pressable,
   Platform,
+  Modal,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
 import { MessageBubble } from "@/components/MessageBubble";
 import { ThemedText } from "@/components/ThemedText";
@@ -28,6 +34,24 @@ interface ChatDetailScreenProps {
   };
 }
 
+interface AttachmentOption {
+  id: string;
+  icon: string;
+  label: string;
+  color: string;
+}
+
+const attachmentOptions: AttachmentOption[] = [
+  { id: "audio", icon: "mic", label: "Audio", color: "#FF6B6B" },
+  { id: "sticker", icon: "smile", label: "Sticker", color: "#FFE66D" },
+  { id: "file", icon: "file", label: "File", color: "#4ECDC4" },
+  { id: "photo", icon: "image", label: "Photo", color: "#00B900" },
+  { id: "video", icon: "video", label: "Video", color: "#A855F7" },
+  { id: "link", icon: "link", label: "Link", color: "#3B82F6" },
+];
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
 export default function ChatDetailScreen({ route }: ChatDetailScreenProps) {
   const { chatId } = route.params;
   const insets = useSafeAreaInsets();
@@ -37,6 +61,12 @@ export default function ChatDetailScreen({ route }: ChatDetailScreenProps) {
     mockMessages[chatId] || []
   );
   const [inputText, setInputText] = useState("");
+  const [showAttachments, setShowAttachments] = useState(false);
+  const attachScale = useSharedValue(1);
+
+  const attachAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: showAttachments ? "45deg" : "0deg" }, { scale: attachScale.value }],
+  }));
 
   const handleSend = useCallback(() => {
     if (inputText.trim()) {
@@ -52,6 +82,20 @@ export default function ChatDetailScreen({ route }: ChatDetailScreenProps) {
       setInputText("");
     }
   }, [inputText, chatId]);
+
+  const handleAttachPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    attachScale.value = withSpring(0.9, { damping: 15 });
+    setTimeout(() => {
+      attachScale.value = withSpring(1, { damping: 15 });
+    }, 100);
+    setShowAttachments(!showAttachments);
+  };
+
+  const handleAttachmentSelect = (option: AttachmentOption) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setShowAttachments(false);
+  };
 
   const renderItem = ({ item }: { item: Message }) => (
     <MessageBubble message={item} />
@@ -72,7 +116,7 @@ export default function ChatDetailScreen({ route }: ChatDetailScreenProps) {
       keyboardVerticalOffset={0}
     >
       <FlatList
-        data={messages.length > 0 ? messages.toReversed() : []}
+        data={messages}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         inverted={messages.length > 0}
@@ -87,6 +131,29 @@ export default function ChatDetailScreen({ route }: ChatDetailScreenProps) {
         ListEmptyComponent={renderEmpty}
         showsVerticalScrollIndicator={false}
       />
+
+      {showAttachments ? (
+        <View style={[styles.attachmentPanel, { backgroundColor: theme.backgroundDefault, borderTopColor: theme.border }]}>
+          <View style={styles.attachmentGrid}>
+            {attachmentOptions.map((option) => (
+              <Pressable
+                key={option.id}
+                testID={`attach-${option.id}`}
+                style={styles.attachmentItem}
+                onPress={() => handleAttachmentSelect(option)}
+              >
+                <View style={[styles.attachmentIcon, { backgroundColor: option.color }]}>
+                  <Feather name={option.icon as any} size={24} color="#FFFFFF" />
+                </View>
+                <ThemedText type="small" style={{ marginTop: Spacing.xs }}>
+                  {option.label}
+                </ThemedText>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      ) : null}
+
       <View
         style={[
           styles.inputContainer,
@@ -97,9 +164,13 @@ export default function ChatDetailScreen({ route }: ChatDetailScreenProps) {
           },
         ]}
       >
-        <Pressable style={styles.attachButton}>
-          <Feather name="image" size={22} color={theme.textSecondary} />
-        </Pressable>
+        <AnimatedPressable 
+          testID="attach-button"
+          style={[styles.attachButton, attachAnimatedStyle]} 
+          onPress={handleAttachPress}
+        >
+          <Feather name="plus" size={24} color={showAttachments ? Colors.light.primary : theme.textSecondary} />
+        </AnimatedPressable>
         <TextInput
           testID="message-input"
           style={[
@@ -146,6 +217,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     flexGrow: 1,
+    paddingHorizontal: Spacing.lg,
   },
   emptyList: {
     flex: 1,
@@ -155,6 +227,28 @@ const styles = StyleSheet.create({
   emptyContainer: {
     alignItems: "center",
     transform: [{ scaleY: -1 }],
+  },
+  attachmentPanel: {
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+    borderTopWidth: 1,
+  },
+  attachmentGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+  },
+  attachmentItem: {
+    alignItems: "center",
+    width: "33%",
+    paddingVertical: Spacing.md,
+  },
+  attachmentIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    alignItems: "center",
+    justifyContent: "center",
   },
   inputContainer: {
     flexDirection: "row",

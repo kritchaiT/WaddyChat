@@ -5,6 +5,7 @@ import { useHeaderHeight } from "@react-navigation/elements";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import * as Haptics from "expo-haptics";
 
+import { AdCarousel } from "@/components/AdCarousel";
 import { NewsCard } from "@/components/NewsCard";
 import { ServiceItem } from "@/components/ServiceItem";
 import { ThemedText } from "@/components/ThemedText";
@@ -47,6 +48,19 @@ export default function ServicesScreen() {
         />
       }
     >
+      <AdCarousel />
+
+      <View style={styles.section}>
+        <ThemedText type="h3" style={styles.sectionTitle}>
+          Services
+        </ThemedText>
+        <View style={[styles.servicesGrid, { backgroundColor: theme.backgroundDefault }]}>
+          {mockServices.map((service) => (
+            <ServiceItem key={service.id} service={service} />
+          ))}
+        </View>
+      </View>
+
       <View style={styles.section}>
         <ThemedText type="h3" style={styles.sectionTitle}>
           Latest News
@@ -64,31 +78,6 @@ export default function ServicesScreen() {
             />
           </View>
         ) : null}
-      </View>
-
-      <View style={styles.section}>
-        <ThemedText type="h3" style={styles.sectionTitle}>
-          Services
-        </ThemedText>
-        <View style={[styles.servicesGrid, { backgroundColor: theme.backgroundDefault }]}>
-          {mockServices.map((service) => (
-            <ServiceItem key={service.id} service={service} />
-          ))}
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <ThemedText type="h3" style={styles.sectionTitle}>
-          Promotions
-        </ThemedText>
-        <View style={[styles.promoCard, { backgroundColor: Colors.light.primary }]}>
-          <ThemedText type="h4" style={styles.promoTitle}>
-            Get 20% off your first order
-          </ThemedText>
-          <ThemedText type="body" style={styles.promoSubtitle}>
-            Use code WELCOME20 at checkout
-          </ThemedText>
-        </View>
       </View>
     </ScrollView>
   );
@@ -117,16 +106,5 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     borderRadius: 16,
     paddingVertical: Spacing.sm,
-  },
-  promoCard: {
-    padding: Spacing.xl,
-    borderRadius: 16,
-  },
-  promoTitle: {
-    color: "#FFFFFF",
-    marginBottom: Spacing.xs,
-  },
-  promoSubtitle: {
-    color: "rgba(255,255,255,0.8)",
   },
 });
