@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, ScrollView, Pressable, Dimensions } from "react-native";
+import { View, StyleSheet, ScrollView, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
@@ -10,17 +10,32 @@ import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 
 import { ThemedText } from "@/components/ThemedText";
-import { Button } from "@/components/Button";
 import { useTheme } from "@/hooks/useTheme";
 import { Spacing, BorderRadius, Colors } from "@/constants/theme";
-import { currentUser, mockPosts } from "@/data/mockData";
+import { currentUser } from "@/data/mockData";
 import { RootStackParamList } from "@/navigation/RootStackNavigator";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const GRID_GAP = 2;
-const GRID_ITEM_SIZE = (SCREEN_WIDTH - Spacing.lg * 2 - GRID_GAP * 2) / 3;
+interface MenuItem {
+  id: string;
+  icon: string;
+  label: string;
+  color?: string;
+}
+
+const menuItems: MenuItem[] = [
+  { id: "wallet", icon: "credit-card", label: "My Wallet" },
+  { id: "rewards", icon: "gift", label: "Rewards" },
+  { id: "favorites", icon: "heart", label: "Favorites" },
+  { id: "orders", icon: "shopping-bag", label: "Orders" },
+];
+
+const settingsItems: MenuItem[] = [
+  { id: "settings", icon: "settings", label: "Settings" },
+  { id: "help", icon: "help-circle", label: "Help Center" },
+  { id: "about", icon: "info", label: "About" },
+];
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -34,91 +49,76 @@ export default function ProfileScreen() {
     navigation.navigate("Settings");
   };
 
-  const handleEditProfile = () => {
+  const handleMenuItem = (item: MenuItem) => {
     Haptics.selectionAsync();
-  };
-
-  const formatNumber = (num: number): string => {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + "M";
+    if (item.id === "settings") {
+      navigation.navigate("Settings");
     }
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + "k";
-    }
-    return num.toString();
   };
 
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: theme.backgroundRoot }]}
       contentContainerStyle={{
-        paddingTop: headerHeight + Spacing.xl,
+        paddingTop: headerHeight + Spacing.lg,
         paddingBottom: tabBarHeight + Spacing.xl,
       }}
       scrollIndicatorInsets={{ bottom: insets.bottom }}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.header}>
+      <View style={[styles.profileCard, { backgroundColor: theme.backgroundDefault }]}>
         <Image
           source={currentUser.avatar}
           style={styles.avatar}
           contentFit="cover"
         />
-        <ThemedText type="h2" style={styles.name}>
-          {currentUser.name}
-        </ThemedText>
-        <ThemedText type="body" style={{ color: theme.textSecondary }}>
-          {currentUser.username}
-        </ThemedText>
-        <ThemedText type="body" style={[styles.bio, { color: theme.textSecondary }]}>
-          {currentUser.bio}
-        </ThemedText>
-      </View>
-
-      <View style={styles.stats}>
-        <View style={styles.statItem}>
-          <ThemedText type="h3">{currentUser.postsCount}</ThemedText>
+        <View style={styles.profileInfo}>
+          <ThemedText type="h3">{currentUser.name}</ThemedText>
           <ThemedText type="small" style={{ color: theme.textSecondary }}>
-            Posts
+            {currentUser.username}
           </ThemedText>
         </View>
-        <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
-        <View style={styles.statItem}>
-          <ThemedText type="h3">{formatNumber(currentUser.followersCount)}</ThemedText>
-          <ThemedText type="small" style={{ color: theme.textSecondary }}>
-            Followers
-          </ThemedText>
-        </View>
-        <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
-        <View style={styles.statItem}>
-          <ThemedText type="h3">{formatNumber(currentUser.followingCount)}</ThemedText>
-          <ThemedText type="small" style={{ color: theme.textSecondary }}>
-            Following
-          </ThemedText>
-        </View>
-      </View>
-
-      <View style={styles.actions}>
-        <Button onPress={handleEditProfile} style={styles.editButton}>
-          Edit Profile
-        </Button>
-        <Pressable
-          testID="settings-button"
-          onPress={handleSettings}
-          style={[styles.settingsButton, { backgroundColor: theme.backgroundDefault }]}
-        >
-          <Feather name="settings" size={20} color={theme.text} />
+        <Pressable onPress={handleSettings} style={styles.editIcon}>
+          <Feather name="chevron-right" size={20} color={theme.textTertiary} />
         </Pressable>
       </View>
 
-      <View style={styles.grid}>
-        {mockPosts.map((post) => (
-          <Pressable key={post.id} style={styles.gridItem}>
-            <Image
-              source={post.image}
-              style={styles.gridImage}
-              contentFit="cover"
-            />
+      <View style={[styles.menuCard, { backgroundColor: theme.backgroundDefault }]}>
+        {menuItems.map((item, index) => (
+          <Pressable
+            key={item.id}
+            testID={`menu-${item.id}`}
+            onPress={() => handleMenuItem(item)}
+            style={[
+              styles.menuItem,
+              index < menuItems.length - 1 && { borderBottomWidth: 1, borderBottomColor: theme.border },
+            ]}
+          >
+            <View style={[styles.menuIconContainer, { backgroundColor: Colors.light.primary + "15" }]}>
+              <Feather name={item.icon as any} size={20} color={Colors.light.primary} />
+            </View>
+            <ThemedText type="body" style={styles.menuLabel}>{item.label}</ThemedText>
+            <Feather name="chevron-right" size={18} color={theme.textTertiary} />
+          </Pressable>
+        ))}
+      </View>
+
+      <View style={[styles.menuCard, { backgroundColor: theme.backgroundDefault }]}>
+        {settingsItems.map((item, index) => (
+          <Pressable
+            key={item.id}
+            testID={`menu-${item.id}`}
+            onPress={() => handleMenuItem(item)}
+            style={[
+              styles.menuItem,
+              index < settingsItems.length - 1 && { borderBottomWidth: 1, borderBottomColor: theme.border },
+            ]}
+          >
+            <View style={[styles.menuIconContainer, { backgroundColor: theme.backgroundTertiary }]}>
+              <Feather name={item.icon as any} size={20} color={theme.textSecondary} />
+            </View>
+            <ThemedText type="body" style={styles.menuLabel}>{item.label}</ThemedText>
+            <Feather name="chevron-right" size={18} color={theme.textTertiary} />
           </Pressable>
         ))}
       </View>
@@ -130,68 +130,46 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
+  profileCard: {
+    flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: Spacing.lg,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.lg,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.sm,
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: Spacing.lg,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
   },
-  name: {
-    marginBottom: Spacing.xs,
-  },
-  bio: {
-    textAlign: "center",
-    marginTop: Spacing.md,
-  },
-  stats: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: Spacing.xl,
-    marginTop: Spacing.lg,
-  },
-  statItem: {
-    alignItems: "center",
-    paddingHorizontal: Spacing["2xl"],
-  },
-  statDivider: {
-    width: 1,
-    height: 32,
-  },
-  actions: {
-    flexDirection: "row",
-    paddingHorizontal: Spacing.lg,
-    marginBottom: Spacing.xl,
-  },
-  editButton: {
+  profileInfo: {
     flex: 1,
-    marginRight: Spacing.md,
+    marginLeft: Spacing.md,
   },
-  settingsButton: {
-    width: Spacing.buttonHeight,
-    height: Spacing.buttonHeight,
-    borderRadius: BorderRadius.full,
-    alignItems: "center",
-    justifyContent: "center",
+  editIcon: {
+    padding: Spacing.sm,
   },
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    paddingHorizontal: Spacing.lg,
-    gap: GRID_GAP,
-  },
-  gridItem: {
-    width: GRID_ITEM_SIZE,
-    height: GRID_ITEM_SIZE,
-    borderRadius: BorderRadius.xs,
+  menuCard: {
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.lg,
+    borderRadius: BorderRadius.sm,
     overflow: "hidden",
   },
-  gridImage: {
-    width: "100%",
-    height: "100%",
+  menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: Spacing.lg,
+  },
+  menuIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  menuLabel: {
+    flex: 1,
+    marginLeft: Spacing.md,
   },
 });

@@ -1,17 +1,16 @@
 import React, { useState, useCallback } from "react";
-import { View, StyleSheet, ScrollView, FlatList, RefreshControl } from "react-native";
+import { View, StyleSheet, ScrollView, FlatList, RefreshControl, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 
 import { AdCarousel } from "@/components/AdCarousel";
-import { NewsCard } from "@/components/NewsCard";
-import { ServiceItem } from "@/components/ServiceItem";
 import { ThemedText } from "@/components/ThemedText";
 import { useTheme } from "@/hooks/useTheme";
-import { Spacing, Colors } from "@/constants/theme";
-import { mockNews, mockServices, NewsItem, Service } from "@/data/mockData";
+import { Spacing, BorderRadius, Colors } from "@/constants/theme";
+import { mockServices, Service } from "@/data/mockData";
 
 export default function ServicesScreen() {
   const insets = useSafeAreaInsets();
@@ -26,15 +25,15 @@ export default function ServicesScreen() {
     setTimeout(() => setRefreshing(false), 1000);
   }, []);
 
-  const renderNewsItem = ({ item, index }: { item: NewsItem; index: number }) => (
-    <NewsCard news={item} isFirst={false} />
-  );
+  const handleServicePress = (service: Service) => {
+    Haptics.selectionAsync();
+  };
 
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: theme.backgroundRoot }]}
       contentContainerStyle={{
-        paddingTop: headerHeight + Spacing.lg,
+        paddingTop: headerHeight + Spacing.md,
         paddingBottom: tabBarHeight + Spacing.xl,
       }}
       scrollIndicatorInsets={{ bottom: insets.bottom }}
@@ -50,34 +49,43 @@ export default function ServicesScreen() {
     >
       <AdCarousel />
 
-      <View style={styles.section}>
-        <ThemedText type="h3" style={styles.sectionTitle}>
-          Services
-        </ThemedText>
-        <View style={[styles.servicesGrid, { backgroundColor: theme.backgroundDefault }]}>
+      <View style={[styles.servicesCard, { backgroundColor: theme.backgroundDefault }]}>
+        <View style={styles.servicesGrid}>
           {mockServices.map((service) => (
-            <ServiceItem key={service.id} service={service} />
+            <Pressable
+              key={service.id}
+              testID={`service-${service.id}`}
+              onPress={() => handleServicePress(service)}
+              style={styles.serviceItem}
+            >
+              <View style={[styles.serviceIcon, { backgroundColor: service.color + "15" }]}>
+                <Feather name={service.icon as any} size={24} color={service.color} />
+              </View>
+              <ThemedText type="small" style={styles.serviceLabel} numberOfLines={1}>
+                {service.name}
+              </ThemedText>
+            </Pressable>
           ))}
         </View>
       </View>
 
       <View style={styles.section}>
-        <ThemedText type="h3" style={styles.sectionTitle}>
-          Latest News
+        <ThemedText type="h4" style={styles.sectionTitle}>
+          Recent Activity
         </ThemedText>
-        {mockNews.length > 0 ? (
-          <View style={styles.newsSection}>
-            <NewsCard news={mockNews[0]} isFirst />
-            <FlatList
-              horizontal
-              data={mockNews.slice(1)}
-              keyExtractor={(item) => item.id}
-              renderItem={renderNewsItem}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.newsList}
-            />
+        <View style={[styles.activityCard, { backgroundColor: theme.backgroundDefault }]}>
+          <View style={styles.activityItem}>
+            <View style={[styles.activityIcon, { backgroundColor: Colors.light.primary + "15" }]}>
+              <Feather name="check-circle" size={20} color={Colors.light.primary} />
+            </View>
+            <View style={styles.activityContent}>
+              <ThemedText type="body">Welcome to the app!</ThemedText>
+              <ThemedText type="small" style={{ color: theme.textTertiary }}>
+                Start exploring our services
+              </ThemedText>
+            </View>
           </View>
-        ) : null}
+        </View>
       </View>
     </ScrollView>
   );
@@ -87,24 +95,56 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  section: {
-    paddingHorizontal: Spacing.lg,
-    marginBottom: Spacing.xl,
-  },
-  sectionTitle: {
-    marginBottom: Spacing.md,
-  },
-  newsSection: {
-    marginHorizontal: -Spacing.lg,
-    paddingHorizontal: Spacing.lg,
-  },
-  newsList: {
-    paddingRight: Spacing.lg,
+  servicesCard: {
+    marginHorizontal: Spacing.lg,
+    borderRadius: BorderRadius.sm,
+    padding: Spacing.md,
+    marginBottom: Spacing.lg,
   },
   servicesGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    borderRadius: 16,
-    paddingVertical: Spacing.sm,
+  },
+  serviceItem: {
+    width: "25%",
+    alignItems: "center",
+    paddingVertical: Spacing.md,
+  },
+  serviceIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: Spacing.xs,
+  },
+  serviceLabel: {
+    textAlign: "center",
+  },
+  section: {
+    paddingHorizontal: Spacing.lg,
+  },
+  sectionTitle: {
+    marginBottom: Spacing.md,
+  },
+  activityCard: {
+    borderRadius: BorderRadius.sm,
+    overflow: "hidden",
+  },
+  activityItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: Spacing.lg,
+  },
+  activityIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  activityContent: {
+    flex: 1,
+    marginLeft: Spacing.md,
   },
 });

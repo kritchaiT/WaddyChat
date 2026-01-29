@@ -6,7 +6,6 @@ import {
   TextInput,
   Pressable,
   Platform,
-  Modal,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHeaderHeight } from "@react-navigation/elements";
@@ -42,11 +41,11 @@ interface AttachmentOption {
 }
 
 const attachmentOptions: AttachmentOption[] = [
-  { id: "audio", icon: "mic", label: "Audio", color: "#FF6B6B" },
-  { id: "sticker", icon: "smile", label: "Sticker", color: "#FFE66D" },
-  { id: "file", icon: "file", label: "File", color: "#4ECDC4" },
   { id: "photo", icon: "image", label: "Photo", color: "#00B900" },
   { id: "video", icon: "video", label: "Video", color: "#A855F7" },
+  { id: "audio", icon: "mic", label: "Audio", color: "#FF6B6B" },
+  { id: "file", icon: "file", label: "File", color: "#4ECDC4" },
+  { id: "sticker", icon: "smile", label: "Sticker", color: "#FFE66D" },
   { id: "link", icon: "link", label: "Link", color: "#3B82F6" },
 ];
 
@@ -58,7 +57,7 @@ export default function ChatDetailScreen({ route }: ChatDetailScreenProps) {
   const headerHeight = useHeaderHeight();
   const { theme } = useTheme();
   const [messages, setMessages] = useState<Message[]>(
-    mockMessages[chatId] || []
+    () => [...(mockMessages[chatId] || [])].reverse()
   );
   const [inputText, setInputText] = useState("");
   const [showAttachments, setShowAttachments] = useState(false);
@@ -122,10 +121,7 @@ export default function ChatDetailScreen({ route }: ChatDetailScreenProps) {
         inverted={messages.length > 0}
         contentContainerStyle={[
           styles.listContent,
-          {
-            paddingTop: Spacing.lg,
-            paddingBottom: headerHeight + Spacing.lg,
-          },
+          { paddingTop: headerHeight + Spacing.md },
           messages.length === 0 && styles.emptyList,
         ]}
         ListEmptyComponent={renderEmpty}
@@ -143,9 +139,9 @@ export default function ChatDetailScreen({ route }: ChatDetailScreenProps) {
                 onPress={() => handleAttachmentSelect(option)}
               >
                 <View style={[styles.attachmentIcon, { backgroundColor: option.color }]}>
-                  <Feather name={option.icon as any} size={24} color="#FFFFFF" />
+                  <Feather name={option.icon as any} size={22} color="#FFFFFF" />
                 </View>
-                <ThemedText type="small" style={{ marginTop: Spacing.xs }}>
+                <ThemedText type="small" style={{ marginTop: Spacing.xs, color: theme.textSecondary }}>
                   {option.label}
                 </ThemedText>
               </Pressable>
@@ -160,7 +156,7 @@ export default function ChatDetailScreen({ route }: ChatDetailScreenProps) {
           {
             backgroundColor: theme.backgroundDefault,
             borderTopColor: theme.border,
-            paddingBottom: insets.bottom > 0 ? insets.bottom : Spacing.md,
+            paddingBottom: insets.bottom > 0 ? insets.bottom : Spacing.sm,
           },
         ]}
       >
@@ -176,11 +172,11 @@ export default function ChatDetailScreen({ route }: ChatDetailScreenProps) {
           style={[
             styles.input,
             {
-              backgroundColor: theme.backgroundSecondary,
+              backgroundColor: theme.backgroundTertiary,
               color: theme.text,
             },
           ]}
-          placeholder="Type a message..."
+          placeholder="Message"
           placeholderTextColor={theme.textTertiary}
           value={inputText}
           onChangeText={setInputText}
@@ -190,20 +186,13 @@ export default function ChatDetailScreen({ route }: ChatDetailScreenProps) {
         <Pressable
           testID="send-button"
           onPress={handleSend}
-          style={[
-            styles.sendButton,
-            {
-              backgroundColor: inputText.trim()
-                ? Colors.light.primary
-                : theme.backgroundTertiary,
-            },
-          ]}
+          style={styles.sendButton}
           disabled={!inputText.trim()}
         >
           <Feather
             name="send"
-            size={18}
-            color={inputText.trim() ? "#FFFFFF" : theme.textTertiary}
+            size={22}
+            color={inputText.trim() ? Colors.light.primary : theme.textTertiary}
           />
         </Pressable>
       </View>
@@ -217,7 +206,8 @@ const styles = StyleSheet.create({
   },
   listContent: {
     flexGrow: 1,
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.sm,
+    paddingBottom: Spacing.sm,
   },
   emptyList: {
     flex: 1,
@@ -229,8 +219,8 @@ const styles = StyleSheet.create({
     transform: [{ scaleY: -1 }],
   },
   attachmentPanel: {
-    paddingVertical: Spacing.lg,
-    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.sm,
     borderTopWidth: 1,
   },
   attachmentGrid: {
@@ -241,20 +231,20 @@ const styles = StyleSheet.create({
   attachmentItem: {
     alignItems: "center",
     width: "33%",
-    paddingVertical: Spacing.md,
+    paddingVertical: Spacing.sm,
   },
   attachmentIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: "center",
     justifyContent: "center",
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "flex-end",
-    paddingHorizontal: Spacing.md,
-    paddingTop: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+    paddingTop: Spacing.sm,
     borderTopWidth: 1,
   },
   attachButton: {
@@ -262,14 +252,13 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: Spacing.xs,
   },
   input: {
     flex: 1,
     minHeight: 40,
     maxHeight: 100,
-    borderRadius: BorderRadius.lg,
-    paddingHorizontal: Spacing.lg,
+    borderRadius: 20,
+    paddingHorizontal: Spacing.md,
     paddingVertical: Platform.OS === "ios" ? Spacing.sm : Spacing.xs,
     fontSize: 16,
     fontFamily: "Nunito_400Regular",
@@ -277,9 +266,7 @@ const styles = StyleSheet.create({
   sendButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-    marginLeft: Spacing.sm,
   },
 });
