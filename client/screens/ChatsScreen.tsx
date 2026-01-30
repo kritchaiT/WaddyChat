@@ -110,7 +110,7 @@ export default function ChatsScreen() {
         testID="fab-new-chat"
         onPress={handleNewChat}
         icon="edit-3"
-        style={[styles.fab, { bottom: tabBarHeight + Spacing.md }]}
+        style={{ position: "absolute", right: Spacing.md, bottom: tabBarHeight + Spacing.md }}
       />
     </View>
   );
@@ -151,9 +151,5 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     alignItems: "center",
-  },
-  fab: {
-    position: "absolute",
-    right: Spacing.md,
   },
 });
