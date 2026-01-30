@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -56,6 +56,7 @@ export default function ChatDetailScreen({ route }: ChatDetailScreenProps) {
   const insets = useSafeAreaInsets();
   const headerHeight = useHeaderHeight();
   const { theme } = useTheme();
+  const flatListRef = useRef<FlatList>(null);
   const [messages, setMessages] = useState<Message[]>(
     () => [...(mockMessages[chatId] || [])].reverse()
   );
@@ -102,7 +103,8 @@ export default function ChatDetailScreen({ route }: ChatDetailScreenProps) {
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <ThemedText type="body" style={{ color: theme.textSecondary }}>
+      <Feather name="message-circle" size={48} color={theme.textTertiary} />
+      <ThemedText type="body" style={{ color: theme.textSecondary, marginTop: Spacing.md }}>
         Start the conversation
       </ThemedText>
     </View>
@@ -114,19 +116,24 @@ export default function ChatDetailScreen({ route }: ChatDetailScreenProps) {
       behavior="padding"
       keyboardVerticalOffset={0}
     >
-      <FlatList
-        data={messages}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        inverted={messages.length > 0}
-        contentContainerStyle={[
-          styles.listContent,
-          { paddingTop: headerHeight + Spacing.md },
-          messages.length === 0 && styles.emptyList,
-        ]}
-        ListEmptyComponent={renderEmpty}
-        showsVerticalScrollIndicator={false}
-      />
+      {messages.length > 0 ? (
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          inverted
+          contentContainerStyle={[
+            styles.listContent,
+            { paddingTop: Spacing.sm, paddingBottom: headerHeight },
+          ]}
+          showsVerticalScrollIndicator={false}
+        />
+      ) : (
+        <View style={[styles.emptyWrapper, { paddingTop: headerHeight }]}>
+          {renderEmpty()}
+        </View>
+      )}
 
       {showAttachments ? (
         <View style={[styles.attachmentPanel, { backgroundColor: theme.backgroundDefault, borderTopColor: theme.border }]}>
@@ -139,9 +146,9 @@ export default function ChatDetailScreen({ route }: ChatDetailScreenProps) {
                 onPress={() => handleAttachmentSelect(option)}
               >
                 <View style={[styles.attachmentIcon, { backgroundColor: option.color }]}>
-                  <Feather name={option.icon as any} size={22} color="#FFFFFF" />
+                  <Feather name={option.icon as any} size={20} color="#FFFFFF" />
                 </View>
-                <ThemedText type="small" style={{ marginTop: Spacing.xs, color: theme.textSecondary }}>
+                <ThemedText type="small" style={{ marginTop: 4, color: theme.textSecondary }}>
                   {option.label}
                 </ThemedText>
               </Pressable>
@@ -205,38 +212,34 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    flexGrow: 1,
     paddingHorizontal: Spacing.sm,
-    paddingBottom: Spacing.sm,
   },
-  emptyList: {
+  emptyWrapper: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
   emptyContainer: {
     alignItems: "center",
-    transform: [{ scaleY: -1 }],
   },
   attachmentPanel: {
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.xs,
     borderTopWidth: 1,
   },
   attachmentGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-around",
   },
   attachmentItem: {
     alignItems: "center",
-    width: "33%",
+    width: "33.33%",
     paddingVertical: Spacing.sm,
   },
   attachmentIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -248,24 +251,24 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
   attachButton: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     alignItems: "center",
     justifyContent: "center",
   },
   input: {
     flex: 1,
-    minHeight: 40,
+    minHeight: 36,
     maxHeight: 100,
-    borderRadius: 20,
+    borderRadius: 18,
     paddingHorizontal: Spacing.md,
-    paddingVertical: Platform.OS === "ios" ? Spacing.sm : Spacing.xs,
-    fontSize: 16,
+    paddingVertical: Platform.OS === "ios" ? 8 : 6,
+    fontSize: 15,
     fontFamily: "Nunito_400Regular",
   },
   sendButton: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     alignItems: "center",
     justifyContent: "center",
   },

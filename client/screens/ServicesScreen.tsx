@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { View, StyleSheet, ScrollView, FlatList, RefreshControl, Pressable } from "react-native";
+import { View, StyleSheet, ScrollView, RefreshControl, Pressable, TextInput } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
@@ -10,7 +10,16 @@ import { AdCarousel } from "@/components/AdCarousel";
 import { ThemedText } from "@/components/ThemedText";
 import { useTheme } from "@/hooks/useTheme";
 import { Spacing, BorderRadius, Colors } from "@/constants/theme";
-import { mockServices, Service } from "@/data/mockData";
+import { mockServices, mockNews, Service, NewsItem } from "@/data/mockData";
+
+const extraServices: Service[] = [
+  { id: "9", name: "Shopping", icon: "shopping-bag", color: "#EC4899", description: "" },
+  { id: "10", name: "Games", icon: "play", color: "#8B5CF6", description: "" },
+  { id: "11", name: "Music", icon: "music", color: "#F59E0B", description: "" },
+  { id: "12", name: "Weather", icon: "cloud", color: "#06B6D4", description: "" },
+];
+
+const allServices = [...mockServices, ...extraServices];
 
 export default function ServicesScreen() {
   const insets = useSafeAreaInsets();
@@ -18,6 +27,7 @@ export default function ServicesScreen() {
   const tabBarHeight = useBottomTabBarHeight();
   const { theme } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
+  const [searchText, setSearchText] = useState("");
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -29,12 +39,16 @@ export default function ServicesScreen() {
     Haptics.selectionAsync();
   };
 
+  const filteredServices = searchText
+    ? allServices.filter((s) => s.name.toLowerCase().includes(searchText.toLowerCase()))
+    : allServices;
+
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: theme.backgroundRoot }]}
       contentContainerStyle={{
-        paddingTop: headerHeight + Spacing.md,
-        paddingBottom: tabBarHeight + Spacing.xl,
+        paddingTop: headerHeight + Spacing.sm,
+        paddingBottom: tabBarHeight + Spacing.lg,
       }}
       scrollIndicatorInsets={{ bottom: insets.bottom }}
       showsVerticalScrollIndicator={false}
@@ -47,11 +61,29 @@ export default function ServicesScreen() {
         />
       }
     >
+      <View style={styles.searchContainer}>
+        <View style={[styles.searchBar, { backgroundColor: theme.backgroundDefault }]}>
+          <Feather name="search" size={18} color={theme.textTertiary} />
+          <TextInput
+            style={[styles.searchInput, { color: theme.text }]}
+            placeholder="Search services..."
+            placeholderTextColor={theme.textTertiary}
+            value={searchText}
+            onChangeText={setSearchText}
+          />
+          {searchText ? (
+            <Pressable onPress={() => setSearchText("")}>
+              <Feather name="x" size={18} color={theme.textTertiary} />
+            </Pressable>
+          ) : null}
+        </View>
+      </View>
+
       <AdCarousel />
 
       <View style={[styles.servicesCard, { backgroundColor: theme.backgroundDefault }]}>
         <View style={styles.servicesGrid}>
-          {mockServices.map((service) => (
+          {filteredServices.map((service) => (
             <Pressable
               key={service.id}
               testID={`service-${service.id}`}
@@ -59,7 +91,7 @@ export default function ServicesScreen() {
               style={styles.serviceItem}
             >
               <View style={[styles.serviceIcon, { backgroundColor: service.color + "15" }]}>
-                <Feather name={service.icon as any} size={24} color={service.color} />
+                <Feather name={service.icon as any} size={20} color={service.color} />
               </View>
               <ThemedText type="small" style={styles.serviceLabel} numberOfLines={1}>
                 {service.name}
@@ -70,22 +102,27 @@ export default function ServicesScreen() {
       </View>
 
       <View style={styles.section}>
-        <ThemedText type="h4" style={styles.sectionTitle}>
-          Recent Activity
-        </ThemedText>
-        <View style={[styles.activityCard, { backgroundColor: theme.backgroundDefault }]}>
-          <View style={styles.activityItem}>
-            <View style={[styles.activityIcon, { backgroundColor: Colors.light.primary + "15" }]}>
-              <Feather name="check-circle" size={20} color={Colors.light.primary} />
-            </View>
-            <View style={styles.activityContent}>
-              <ThemedText type="body">Welcome to the app!</ThemedText>
+        <ThemedText type="h4" style={styles.sectionTitle}>Hot News</ThemedText>
+        {mockNews.map((news) => (
+          <Pressable
+            key={news.id}
+            style={[styles.newsItem, { backgroundColor: theme.backgroundDefault }]}
+          >
+            <View style={styles.newsContent}>
+              <View style={[styles.newsBadge, { backgroundColor: Colors.light.primary + "20" }]}>
+                <ThemedText type="small" style={{ color: Colors.light.primary, fontSize: 10 }}>
+                  {news.category}
+                </ThemedText>
+              </View>
+              <ThemedText type="body" numberOfLines={2} style={styles.newsTitle}>
+                {news.title}
+              </ThemedText>
               <ThemedText type="small" style={{ color: theme.textTertiary }}>
-                Start exploring our services
+                {news.timestamp}
               </ThemedText>
             </View>
-          </View>
-        </View>
+          </Pressable>
+        ))}
       </View>
     </ScrollView>
   );
@@ -95,11 +132,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  searchContainer: {
+    paddingHorizontal: Spacing.md,
+    paddingBottom: Spacing.sm,
+  },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: Spacing.md,
+    height: 38,
+    borderRadius: 19,
+    gap: Spacing.sm,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    fontFamily: "Nunito_400Regular",
+  },
   servicesCard: {
-    marginHorizontal: Spacing.lg,
+    marginHorizontal: Spacing.md,
     borderRadius: BorderRadius.sm,
-    padding: Spacing.md,
-    marginBottom: Spacing.lg,
+    paddingVertical: Spacing.xs,
+    marginBottom: Spacing.md,
   },
   servicesGrid: {
     flexDirection: "row",
@@ -108,43 +162,43 @@ const styles = StyleSheet.create({
   serviceItem: {
     width: "25%",
     alignItems: "center",
-    paddingVertical: Spacing.md,
+    paddingVertical: Spacing.sm,
   },
   serviceIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: Spacing.xs,
+    marginBottom: 4,
   },
   serviceLabel: {
+    fontSize: 11,
     textAlign: "center",
   },
   section: {
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.md,
   },
   sectionTitle: {
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
   },
-  activityCard: {
-    borderRadius: BorderRadius.sm,
+  newsItem: {
+    borderRadius: BorderRadius.xs,
+    marginBottom: Spacing.sm,
     overflow: "hidden",
   },
-  activityItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: Spacing.lg,
+  newsContent: {
+    padding: Spacing.md,
   },
-  activityIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
+  newsBadge: {
+    alignSelf: "flex-start",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginBottom: 4,
   },
-  activityContent: {
-    flex: 1,
-    marginLeft: Spacing.md,
+  newsTitle: {
+    fontWeight: "500",
+    marginBottom: 4,
   },
 });

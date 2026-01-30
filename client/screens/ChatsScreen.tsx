@@ -1,16 +1,18 @@
-import React, { useState } from "react";
-import { FlatList, View, StyleSheet } from "react-native";
+import React, { useState, useCallback } from "react";
+import { View, StyleSheet, FlatList, RefreshControl, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Feather } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 
 import { ChatListItem } from "@/components/ChatListItem";
 import { FAB } from "@/components/FAB";
-import { EmptyState } from "@/components/EmptyState";
+import { ThemedText } from "@/components/ThemedText";
 import { useTheme } from "@/hooks/useTheme";
-import { Spacing } from "@/constants/theme";
+import { Spacing, Colors } from "@/constants/theme";
 import { mockChats, Chat } from "@/data/mockData";
 import { RootStackParamList } from "@/navigation/RootStackNavigator";
 
@@ -22,14 +24,21 @@ export default function ChatsScreen() {
   const tabBarHeight = useBottomTabBarHeight();
   const { theme } = useTheme();
   const navigation = useNavigation<NavigationProp>();
+  const [refreshing, setRefreshing] = useState(false);
   const [chats] = useState<Chat[]>(mockChats);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setTimeout(() => setRefreshing(false), 1000);
+  }, []);
 
   const handleChatPress = (chat: Chat) => {
     navigation.navigate("ChatDetail", { chatId: chat.id, chatName: chat.name });
   };
 
   const handleNewChat = () => {
-    // For demo, navigate to first chat
+    Haptics.selectionAsync();
     if (chats.length > 0) {
       handleChatPress(chats[0]);
     }
@@ -39,12 +48,38 @@ export default function ChatsScreen() {
     <ChatListItem chat={item} onPress={() => handleChatPress(item)} />
   );
 
+  const renderHeader = () => (
+    <View style={styles.quickActions}>
+      <Pressable 
+        testID="quick-new-group"
+        style={[styles.quickAction, { backgroundColor: theme.backgroundDefault }]}
+        onPress={() => Haptics.selectionAsync()}
+      >
+        <View style={[styles.quickIcon, { backgroundColor: Colors.light.primary + "15" }]}>
+          <Feather name="users" size={16} color={Colors.light.primary} />
+        </View>
+        <ThemedText type="small">New Group</ThemedText>
+      </Pressable>
+      <Pressable 
+        testID="quick-add-friend"
+        style={[styles.quickAction, { backgroundColor: theme.backgroundDefault }]}
+        onPress={() => Haptics.selectionAsync()}
+      >
+        <View style={[styles.quickIcon, { backgroundColor: Colors.light.primary + "15" }]}>
+          <Feather name="user-plus" size={16} color={Colors.light.primary} />
+        </View>
+        <ThemedText type="small">Add Friend</ThemedText>
+      </Pressable>
+    </View>
+  );
+
   const renderEmpty = () => (
-    <EmptyState
-      image={require("../../assets/images/empty-chats.png")}
-      title="No conversations yet"
-      description="Start a new chat to connect with friends"
-    />
+    <View style={styles.emptyContainer}>
+      <Feather name="message-circle" size={40} color={theme.textTertiary} />
+      <ThemedText type="body" style={{ color: theme.textSecondary, marginTop: Spacing.sm }}>
+        No conversations yet
+      </ThemedText>
+    </View>
   );
 
   return (
@@ -53,23 +88,29 @@ export default function ChatsScreen() {
         data={chats}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
+        ListHeaderComponent={renderHeader}
+        ListEmptyComponent={renderEmpty}
         contentContainerStyle={[
           styles.listContent,
-          {
-            paddingTop: headerHeight + Spacing.sm,
-            paddingBottom: tabBarHeight + Spacing.fabSize + Spacing["2xl"],
-          },
+          { paddingTop: headerHeight + Spacing.xs, paddingBottom: tabBarHeight + Spacing.fabSize + Spacing.lg },
           chats.length === 0 && styles.emptyList,
         ]}
         scrollIndicatorInsets={{ bottom: insets.bottom }}
-        ListEmptyComponent={renderEmpty}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={Colors.light.primary}
+            progressViewOffset={headerHeight}
+          />
+        }
       />
       <FAB
         testID="fab-new-chat"
         onPress={handleNewChat}
         icon="edit-3"
-        style={[styles.fab, { bottom: tabBarHeight + Spacing.lg }]}
+        style={[styles.fab, { bottom: tabBarHeight + Spacing.md }]}
       />
     </View>
   );
@@ -82,12 +123,37 @@ const styles = StyleSheet.create({
   listContent: {
     flexGrow: 1,
   },
+  quickActions: {
+    flexDirection: "row",
+    paddingHorizontal: Spacing.md,
+    paddingBottom: Spacing.sm,
+    gap: Spacing.sm,
+  },
+  quickAction: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: Spacing.sm,
+    borderRadius: 8,
+    gap: Spacing.sm,
+  },
+  quickIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   emptyList: {
     flex: 1,
     justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyContainer: {
+    alignItems: "center",
   },
   fab: {
     position: "absolute",
-    right: Spacing.lg,
+    right: Spacing.md,
   },
 });
