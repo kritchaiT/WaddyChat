@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Pressable, Dimensions } from "react-native";
+import { StyleSheet, View, Pressable, useWindowDimensions } from "react-native";
 import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -20,11 +20,10 @@ interface ReelCardProps {
   isActive?: boolean;
 }
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export function ReelCard({ reel, isActive = false }: ReelCardProps) {
+  const { width, height } = useWindowDimensions();
   const [isLiked, setIsLiked] = useState(reel.isLiked);
   const [likesCount, setLikesCount] = useState(reel.likes);
   const heartScale = useSharedValue(1);
@@ -54,7 +53,7 @@ export function ReelCard({ reel, isActive = false }: ReelCardProps) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { width, height }]}>
       <Image
         source={reel.thumbnail}
         style={styles.video}
@@ -128,8 +127,6 @@ export function ReelCard({ reel, isActive = false }: ReelCardProps) {
 
 const styles = StyleSheet.create({
   container: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
     backgroundColor: "#000",
   },
   video: {

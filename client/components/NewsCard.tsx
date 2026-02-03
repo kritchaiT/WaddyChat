@@ -19,15 +19,24 @@ interface NewsCardProps {
   isFirst?: boolean;
 }
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const CARD_WIDTH = SCREEN_WIDTH - Spacing.lg * 2 - Spacing.md;
-const FIRST_CARD_WIDTH = SCREEN_WIDTH - Spacing.lg * 2;
+import { Utils, useWindowDimensions } from "react-native";
+// ... imports
+
+// Remove fixed width constants
+// const { width: SCREEN_WIDTH } = Dimensions.get("window");
+// const CARD_WIDTH = SCREEN_WIDTH - Spacing.lg * 2 - Spacing.md;
+// const FIRST_CARD_WIDTH = SCREEN_WIDTH - Spacing.lg * 2;
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export function NewsCard({ news, onPress, isFirst }: NewsCardProps) {
   const { theme } = useTheme();
+  const { width } = useWindowDimensions();
   const scale = useSharedValue(1);
+
+  // Calculate widths dynamically
+  const cardWidth = width - Spacing.lg * 2 - Spacing.md;
+  const firstCardWidth = width - Spacing.lg * 2;
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -55,7 +64,11 @@ export function NewsCard({ news, onPress, isFirst }: NewsCardProps) {
         onPressOut={handlePressOut}
         style={[
           styles.featuredContainer,
-          { backgroundColor: theme.backgroundDefault, borderColor: theme.border },
+          {
+            backgroundColor: theme.backgroundDefault,
+            borderColor: theme.border,
+            width: firstCardWidth
+          },
           animatedStyle,
         ]}
       >
@@ -88,7 +101,11 @@ export function NewsCard({ news, onPress, isFirst }: NewsCardProps) {
       onPressOut={handlePressOut}
       style={[
         styles.container,
-        { backgroundColor: theme.backgroundDefault, borderColor: theme.border },
+        {
+          backgroundColor: theme.backgroundDefault,
+          borderColor: theme.border,
+          width: cardWidth
+        },
         animatedStyle,
       ]}
     >
@@ -112,7 +129,6 @@ export function NewsCard({ news, onPress, isFirst }: NewsCardProps) {
 
 const styles = StyleSheet.create({
   container: {
-    width: CARD_WIDTH,
     borderRadius: BorderRadius.sm,
     borderWidth: 1,
     overflow: "hidden",
@@ -136,7 +152,6 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   featuredContainer: {
-    width: FIRST_CARD_WIDTH,
     borderRadius: BorderRadius.sm,
     borderWidth: 1,
     overflow: "hidden",

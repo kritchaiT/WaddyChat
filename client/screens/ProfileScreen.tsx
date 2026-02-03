@@ -27,6 +27,7 @@ export default function ProfileScreen() {
   const tabBarHeight = useBottomTabBarHeight();
   const { theme } = useTheme();
   const navigation = useNavigation<NavigationProp>();
+  const [activeTab, setActiveTab] = React.useState<"posts" | "reels" | "tagged">("posts");
 
   const handleEditProfile = () => {
     Haptics.selectionAsync();
@@ -95,20 +96,29 @@ export default function ProfileScreen() {
         </Pressable>
       </View>
 
-      <View style={styles.tabBar}>
-        <Pressable style={[styles.tab, styles.activeTab]}>
-          <Feather name="grid" size={22} color={theme.text} />
+      <View style={[styles.tabBar, { borderBottomColor: theme.border, borderTopColor: theme.border }]}>
+        <Pressable
+          style={[styles.tab, activeTab === "posts" && { borderBottomColor: theme.text }]}
+          onPress={() => setActiveTab("posts")}
+        >
+          <Feather name="grid" size={22} color={activeTab === "posts" ? theme.text : theme.textTertiary} />
         </Pressable>
-        <Pressable style={styles.tab}>
-          <Feather name="play-circle" size={22} color={theme.textTertiary} />
+        <Pressable
+          style={[styles.tab, activeTab === "reels" && { borderBottomColor: theme.text }]}
+          onPress={() => setActiveTab("reels")}
+        >
+          <Feather name="play-circle" size={22} color={activeTab === "reels" ? theme.text : theme.textTertiary} />
         </Pressable>
-        <Pressable style={styles.tab}>
-          <Feather name="bookmark" size={22} color={theme.textTertiary} />
+        <Pressable
+          style={[styles.tab, activeTab === "tagged" && { borderBottomColor: theme.text }]}
+          onPress={() => setActiveTab("tagged")}
+        >
+          <Feather name="bookmark" size={22} color={activeTab === "tagged" ? theme.text : theme.textTertiary} />
         </Pressable>
       </View>
 
       <View style={styles.grid}>
-        {mockReels.map((item) => (
+        {activeTab === "posts" && mockReels.map((item) => (
           <Pressable key={item.id} style={styles.gridItem}>
             <Image source={item.thumbnail} style={styles.gridImage} contentFit="cover" />
             {item.isVideo ? (
@@ -118,6 +128,18 @@ export default function ProfileScreen() {
             ) : null}
           </Pressable>
         ))}
+        {activeTab === "reels" && (
+          <View style={{ padding: Spacing.lg, width: "100%", alignItems: "center" }}>
+            <Feather name="video" size={48} color={theme.textTertiary} />
+            <ThemedText type="body" style={{ color: theme.textSecondary, marginTop: Spacing.sm }}>No Reels yet</ThemedText>
+          </View>
+        )}
+        {activeTab === "tagged" && (
+          <View style={{ padding: Spacing.lg, width: "100%", alignItems: "center" }}>
+            <Feather name="tag" size={48} color={theme.textTertiary} />
+            <ThemedText type="body" style={{ color: theme.textSecondary, marginTop: Spacing.sm }}>No tagged posts</ThemedText>
+          </View>
+        )}
       </View>
     </ScrollView>
   );
@@ -184,16 +206,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "rgba(0,0,0,0.1)",
+    borderBottomColor: "rgba(0,0,0,0.1)",
   },
   tab: {
     flex: 1,
     alignItems: "center",
     paddingVertical: Spacing.md,
-  },
-  activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: "#000",
+    borderBottomColor: "transparent",
   },
   grid: {
     flexDirection: "row",

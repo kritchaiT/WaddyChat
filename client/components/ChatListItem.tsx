@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.lg,
-    borderRadius: BorderRadius.sm,
+    backgroundColor: "transparent", // Clean look
   },
   avatarContainer: {
     position: "relative",

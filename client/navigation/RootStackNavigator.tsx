@@ -10,15 +10,25 @@ export type RootStackParamList = {
   Main: undefined;
   ChatDetail: { chatId: string; chatName: string };
   Settings: undefined;
+  Login: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+
+import LoginScreen from "@/screens/LoginScreen";
+
+// ... imports
 
 export default function RootStackNavigator() {
   const screenOptions = useScreenOptions();
 
   return (
-    <Stack.Navigator screenOptions={screenOptions}>
+    <Stack.Navigator screenOptions={screenOptions} initialRouteName="Login">
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="Main"
         component={MainTabNavigator}

@@ -13,9 +13,10 @@ interface SettingItemProps {
   title: string;
   onPress?: () => void;
   isDestructive?: boolean;
+  rightElement?: React.ReactNode;
 }
 
-function SettingItem({ icon, title, onPress, isDestructive }: SettingItemProps) {
+function SettingItem({ icon, title, onPress, isDestructive, rightElement }: SettingItemProps) {
   const { theme } = useTheme();
 
   const handlePress = () => {
@@ -56,14 +57,24 @@ function SettingItem({ icon, title, onPress, isDestructive }: SettingItemProps) 
       >
         {title}
       </ThemedText>
-      <Feather name="chevron-right" size={20} color={theme.textTertiary} />
+      {rightElement ? (
+        rightElement
+      ) : (
+        <Feather name="chevron-right" size={20} color={theme.textTertiary} />
+      )}
     </Pressable>
   );
 }
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
-  const { theme } = useTheme();
+  const { theme, toggleTheme, isDark, setTheme } = useTheme();
+
+  const handleLogout = () => {
+    // Clear session, etc.
+    // For now just for demo
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  };
 
   return (
     <ScrollView
@@ -75,31 +86,7 @@ export default function SettingsScreen() {
       }}
       showsVerticalScrollIndicator={false}
     >
-      <ThemedText
-        type="small"
-        style={[styles.sectionTitle, { color: theme.textSecondary }]}
-      >
-        ACCOUNT
-      </ThemedText>
-      <View style={[styles.section, { backgroundColor: theme.backgroundDefault }]}>
-        <SettingItem icon="user" title="Edit Profile" />
-        <View style={[styles.divider, { backgroundColor: theme.border }]} />
-        <SettingItem icon="lock" title="Privacy" />
-        <View style={[styles.divider, { backgroundColor: theme.border }]} />
-        <SettingItem icon="shield" title="Security" />
-      </View>
-
-      <ThemedText
-        type="small"
-        style={[styles.sectionTitle, { color: theme.textSecondary }]}
-      >
-        NOTIFICATIONS
-      </ThemedText>
-      <View style={[styles.section, { backgroundColor: theme.backgroundDefault }]}>
-        <SettingItem icon="bell" title="Push Notifications" />
-        <View style={[styles.divider, { backgroundColor: theme.border }]} />
-        <SettingItem icon="mail" title="Email Notifications" />
-      </View>
+      {/* ... previous sections ... */}
 
       <ThemedText
         type="small"
@@ -108,7 +95,14 @@ export default function SettingsScreen() {
         APPEARANCE
       </ThemedText>
       <View style={[styles.section, { backgroundColor: theme.backgroundDefault }]}>
-        <SettingItem icon="moon" title="Dark Mode" />
+        <SettingItem
+          icon="moon"
+          title="Dark Mode"
+          onPress={toggleTheme}
+          rightElement={
+            <ThemedText style={{ color: theme.primary }}>{isDark ? "On" : "Off"}</ThemedText>
+          }
+        />
         <View style={[styles.divider, { backgroundColor: theme.border }]} />
         <SettingItem icon="type" title="Text Size" />
       </View>
